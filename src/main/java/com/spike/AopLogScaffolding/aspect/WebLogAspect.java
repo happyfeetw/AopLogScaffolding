@@ -1,7 +1,7 @@
 package com.spike.AopLogScaffolding.aspect;
 
 import com.alibaba.fastjson.JSON;
-import com.spike.AopLogScaffolding.annotation.ControllerWebLog;
+import com.spike.AopLogScaffolding.annotation.LogTrace;
 import com.spike.AopLogScaffolding.entity.WebLog;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,8 +34,8 @@ public class WebLogAspect {
     public void webLog(){}
 
 
-    @Before("webLog() && @annotation(controllerWebLog)")
-    public void doBefore(JoinPoint joinPoint, ControllerWebLog controllerWebLog){
+    @Before("webLog() && @annotation(logTrace)")
+    public void doBefore(JoinPoint joinPoint, LogTrace logTrace){
         long startTime = System.currentTimeMillis();
         HashMap<String, Object> threadInfo = new HashMap<>();
         threadInfo.put(START_TIME, startTime);
@@ -50,24 +50,24 @@ public class WebLogAspect {
         threadInfo.put(REQUEST_PARAMS,requestStr);
         threadLocal.set(threadInfo);
         LOGGER.info("{} 接口调用开始, requestData: {}",
-            controllerWebLog.name(),
+            logTrace.name(),
             threadInfo.get(REQUEST_PARAMS));
     }
 
-    @AfterReturning(value = "webLog() && @annotation(controllerWebLog))", returning = "response")
-    public void doAfterReturning(ControllerWebLog controllerWebLog, Object response){
+    @AfterReturning(value = "webLog() && @annotation(logTrace))", returning = "response")
+    public void doAfterReturning(LogTrace logTrace, Object response){
         Map<String, Object> threadInfo = threadLocal.get();
         long timeConsumed = System.currentTimeMillis() -
                 (long)threadInfo.getOrDefault(START_TIME, System.currentTimeMillis());
-        if (controllerWebLog.persistence()){
-            writeDb(controllerWebLog.name(),
+        if (logTrace.persistence()){
+            writeDb(logTrace.name(),
                 (String) threadInfo.getOrDefault(REQUEST_PARAMS,""),
                 JSON.toJSONString(response),timeConsumed);
         }
         threadLocal.remove();
         // 日志记录
         LOGGER.info("{} 接口调用结束, 总耗时: {} ms, responseData: {}",
-            controllerWebLog.name(),
+            logTrace.name(),
             timeConsumed,
             JSON.toJSONString(response));
     }
