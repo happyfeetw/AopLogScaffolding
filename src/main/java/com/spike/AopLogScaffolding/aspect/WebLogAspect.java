@@ -75,6 +75,7 @@ public class WebLogAspect {
 
 
     public void writeDb(String operationName, String reqStrs, String respStr, long timeConsumed){
+
         WebLog webLog = new WebLog();
         webLog.setCreateTime(new Date());
         webLog.setRequest(reqStrs);

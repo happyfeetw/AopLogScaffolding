@@ -2,6 +2,9 @@ package com.spike.AopLogScaffolding.entity;
 
 import java.util.Date;
 
+/**
+ * Created with IntelliJ IDEA. Author: spike Date: 2020/7/16 Time: 11:25 上午 Description:
+ */
 public class WebLog {
     private Integer id;
 
